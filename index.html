@@ -1,0 +1,44 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+	<meta charset="UTF-8">
+	<title>myVue</title>
+</head>
+<body>
+	<div id="app"><div>a</div>
+		<ul>
+			<li>1</li>
+			<li>2</li>
+			<li>3</li>
+		</ul>
+		<div v-text="name"></div>
+		<div>名字{{name}}</div>
+		<div>{{name}}</div>
+		<input type="text" id="input" v-model="name">
+		<button id="btn">改名</button>
+	</div>
+	
+	<!-- <script src="./src/myVue.js"></script> -->
+	<script src="./src/myVue-1.0.0.js"></script>
+	<script>
+		// var vm = new MVVM({
+		// 	el:'#app',
+		// 	data:{
+		// 		name:'angelwgh'
+		// 	}
+		// })
+
+		document.getElementById('btn').addEventListener('click', function () {
+			console.log(vm)
+			vm.name = document.getElementById('input').value;
+		})
+		console.log(myVue)
+		var vm = new myVue({
+			el:'#app',
+			data:{
+				name:'2'
+			}
+		})
+	</script>
+</body>
+</html>
