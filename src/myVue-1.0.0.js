@@ -9,6 +9,27 @@
 })(this, (function () {
 
 	/**
+	 * 带有一些特定方法的空对象
+	 */
+	var _Set = (function () {
+	    function Set () {
+	      this.set = Object.create(null);
+	    }
+	    Set.prototype.has = function has (key) {
+	      return this.set[key] === true
+	    };
+	    Set.prototype.add = function add (key) {
+	      this.set[key] = true;
+	    };
+	    Set.prototype.clear = function clear () {
+	      this.set = Object.create(null);
+	    };
+
+	    return Set;
+ 	 }());
+
+	console.log(new _Set())
+	/**
 	 * 删除数组中的一个元素
 	 */
 	function remove (arr, item) {
@@ -213,13 +234,18 @@
 
 		// 解析文本节点
 		compileText: function(node) {
+			parserTextContent.add(node)
+			// .bindText(node, this.$vm)
 			var reg = /\{\{(.*?)\}\}/g,
 				text = node.textContent,
 				exp;
 				while(exp = reg.exec(text)){
 					exp = exp[1];
-					compileUtil.text(node, this.$vm, exp);
+					// compileUtil.text(node, this.$vm, exp);
+					parserTextContent.bindText(node, this.$vm, exp)
 				}
+			console.log(parserTextContent)
+			// console.log(parserTextContent)
 			// console.log(text)
 			// var exp = text
 	        
@@ -251,9 +277,9 @@
 
 		bind: function (node, vm, exp, dir) {
 			var updaterFn = updater[dir + 'Updater'];
-
-			updaterFn && updaterFn(node, this._getVMVal(vm, exp));
 			// var text = node.textContent
+			// console.log(exp)
+			updaterFn && updaterFn(node, this._getVMVal(vm, exp));
 
 			new Watcher(vm, exp, function(value, oldValue) {
 	            updaterFn && updaterFn(node, value, oldValue);
@@ -306,9 +332,13 @@
 	    }
 	}
 	
+
 	var updater = {
-		textUpdater: function(node, value) {
+		textUpdater: function(node, value, o, text) {
+			// // console.log(node)
+			// console.log(text)
 	        node.textContent = typeof value == 'undefined' ? '' : value;
+
 	    },
 	    htmlUpdater: function(node, value) {
             node.innerHTML = typeof value == 'undefined' ? '' : value;
@@ -327,6 +357,78 @@
             node.value = typeof value == 'undefined' ? '' : value;
         }
 	}
+
+	// 解析{{}}模版
+	function ParserTextContent() {
+		// 用一个数组存储页面中的字符串模版的相关数据
+		this.list = [];
+		this.node = null;
+	}
+
+	ParserTextContent.prototype = {
+		_getObj:function (node) {
+			var obj,i = 0,
+				list = this.list,
+				len = list.length;
+
+			for(; i < len; i++){
+				if(node === list[i].node){
+					obj = list[i]
+					break;
+				}
+				// console.log(node === list[i].node)
+			}
+
+			return obj;
+		},
+		add: function (node) {
+
+			var obj =  {
+				node:node,
+				template:node.textContent,
+				values:{}
+			}
+
+			this.list.push(obj)
+			return this;
+		},
+
+		remove: function (node) {
+			remove(this.list, this._getObj(node))
+		},
+
+		bindText: function (node, vm, exp) {
+			var self = this
+			this.updateText(node,compileUtil._getVMVal(vm, exp),exp)
+			new Watcher(vm, exp, function(value, oldValue) {
+	            self.updateText(node, value, exp);
+	        });
+		},
+
+		updateText: function (node, value, exp) {
+			var list = this.list,
+				len = list.length,
+				i = 0,
+				obj = this._getObj(node),
+				key, text='';
+
+			obj.values[exp] = {
+				exp: '{{' + exp + '}}',
+				value: value
+			}
+			text = obj.template
+			for (key in obj.values){
+				text = text.replace(obj.values[key].exp, obj.values[key].value)
+			}
+
+			node.textContent = text;
+
+			console.log(obj)
+		},
+
+	};
+
+	var parserTextContent = new ParserTextContent();
 
 
 	/**
@@ -348,7 +450,7 @@
  			this.getter = this.parseGetter(expOrFn);
  		};
 
- 		console.log(this.getter)
+ 		// console.log(this.getter)
  		this.value = this.get();
  	}
 

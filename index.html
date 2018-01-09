@@ -6,18 +6,15 @@
 </head>
 <body>
 	<div id="app"><div>a</div>
-		<ul>
-			<li>1</li>
-			<li>2</li>
-			<li>3</li>
-		</ul>
-		<div v-text="name"></div>
-		<div>名字{{name}}</div>
-		<div>{{name}}</div>
-		<input type="text" id="input" v-model="name">
-		<button id="btn">改名</button>
+	<div v-text="cat.name">121212{{cat.age}} </div>
+	<div>名称：{{cat.name}}  年龄：{{cat.age}}</div>
+	<!-- <div>22222{{cat.name}}{{cat.age}}</div> -->
+		<!-- <div v-text="cat.name">1</div> -->
+		<input type="text" v-model="cat.name">
+		<!-- <div v-text="cat.age"></div> -->
+		<input type="text" v-model="cat.age">
 	</div>
-	
+	<!-- <script src="./node_modules/vue/dist/vue.js"></script> -->
 	<!-- <script src="./src/myVue.js"></script> -->
 	<script src="./src/myVue-1.0.0.js"></script>
 	<script>
@@ -28,15 +25,17 @@
 		// 	}
 		// })
 
-		document.getElementById('btn').addEventListener('click', function () {
-			console.log(vm)
-			vm.name = document.getElementById('input').value;
-		})
+
+		
 		console.log(myVue)
 		var vm = new myVue({
 			el:'#app',
 			data:{
-				name:'2'
+				name:'2',
+				cat:{
+					name:'tom',
+					age:1
+				}
 			}
 		})
 	</script>
